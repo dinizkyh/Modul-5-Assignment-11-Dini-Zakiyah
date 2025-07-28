@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --watchAll",
-    "test:ci": "jest --coverage --watchAll=false"
+    "test:ci": "jest --coverage --watchAll=false",
+    "optimize-workflows": "npm install && echo 'package-lock.json generated! See scripts/optimize-workflows.* for next steps.'"
   },
   "dependencies": {
     "@primer/css": "17.0.1",
