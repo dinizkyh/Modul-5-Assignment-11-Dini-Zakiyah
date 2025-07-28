@@ -430,8 +430,7 @@ describe("ProfilePage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
 
-    // eslint-disable-next-line no-console
-    console.log(container.innerHTML);
+    // Debug output removed for cleaner test logs
 
     // Only assert errors that are actually rendered based on validation logic and input
     // Username is too short, so only username error should be shown (validation stops at first error)

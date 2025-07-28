@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const validate = () => {
     const newErrors: ProfileErrors = {};
 
-    if (username.length < 6) {
+    if (username.trim().length < 6) {
       newErrors.username = "Username must be at least 6 characters.";
     }
     if (!fullName) {
