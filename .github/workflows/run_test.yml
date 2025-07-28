@@ -52,3 +52,15 @@ jobs:
         with:
           name: coverage-report
           path: coverage/
+
+      - name: Notify Telegram with test result
+        if: always()
+        run: |
+          STATUS="PASSED"
+          if [ "${{ job.status }}" != 'success' ]; then STATUS="FAILED"; fi
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="GitHub Actions: Unit tests *$STATUS* for ${{ github.repository }} on branch ${{ github.ref_name }}. See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
