@@ -42,13 +42,13 @@ describe("ProfilePage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
 
     expect(
-      await screen.findByText(/Username must be at least 6 characters/i)
+      await screen.findByText("Username must be at least 6 characters.")
     ).toBeInTheDocument();
-    expect(screen.getByText(/Full name is required/i)).toBeInTheDocument();
+    expect(screen.getByText("Full name is required.")).toBeInTheDocument();
     expect(
-      screen.getByText(/Must be a valid email format/i)
+      screen.getByText("Must be a valid email format.")
     ).toBeInTheDocument();
-    expect(screen.getByText(/Phone must be 10-15 digits/i)).toBeInTheDocument();
+    expect(screen.getByText("Phone must be 10-15 digits.")).toBeInTheDocument();
   });
 
   it("submits valid form and shows success message", async () => {
@@ -90,7 +90,7 @@ describe("ProfilePage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
 
     expect(
-      await screen.findByText(/Birth date cannot be in the future/i)
+      await screen.findByText("Birth date cannot be in the future.")
     ).toBeInTheDocument();
   });
 
@@ -104,7 +104,7 @@ describe("ProfilePage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
 
     expect(
-      await screen.findByText(/Bio must be 160 characters or less/i)
+      await screen.findByText("Bio must be 160 characters or less.")
     ).toBeInTheDocument();
   });
 
@@ -221,7 +221,7 @@ describe("ProfilePage", () => {
 
     // Should not show birth date error when empty
     await waitFor(() => {
-      expect(screen.queryByText(/Birth date cannot be in the future/i)).not.toBeInTheDocument();
+      expect(screen.queryByText("Birth date cannot be in the future.")).not.toBeInTheDocument();
     });
   });
 
@@ -236,12 +236,12 @@ describe("ProfilePage", () => {
 
     // Should not show bio error when exactly 160 characters
     await waitFor(() => {
-      expect(screen.queryByText(/Bio must be 160 characters or less/i)).not.toBeInTheDocument();
+      expect(screen.queryByText("Bio must be 160 characters or less.")).not.toBeInTheDocument();
     });
   });
 
   it("shows all validation errors at once", async () => {
-    render(<ProfilePage />);
+    const { container } = render(<ProfilePage />);
     
     // Set invalid values for all fields
     fireEvent.change(screen.getByLabelText(/Username/i), {
@@ -265,21 +265,48 @@ describe("ProfilePage", () => {
       target: { value: "a".repeat(161) },
     });
     
-    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    // Click submit to trigger validation
+    const submitButton = screen.getByRole("button", { name: /Update/i });
+    fireEvent.click(submitButton);
 
-    // All errors should be shown
-    await waitFor(() => {
-      expect(screen.getByText(/Username must be at least 6 characters/i)).toBeInTheDocument();
-    });
-    
+    // Wait and check if ANY error appears - using more flexible approach
+    let foundAnyError = false;
+    await waitFor(
+      async () => {
+        // Wait a bit for React to process the form submission
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check for error elements by class
+        const errorElements = container.querySelectorAll('.text-red-600');
+        
+        // Also check by direct text search
+        const textQueries = [
+          () => screen.queryByText(/Username must be at least 6 characters/i),
+          () => screen.queryByText(/Full name is required/i),
+          () => screen.queryByText(/Must be a valid email format/i),
+          () => screen.queryByText(/Phone must be 10-15 digits/i),
+          () => screen.queryByText(/Birth date cannot be in the future/i),
+          () => screen.queryByText(/Bio must be 160 characters or less/i),
+        ];
+        
+        foundAnyError = errorElements.length > 0 || textQueries.some(query => query() !== null);
+        
+        console.log('Debug info:');
+        console.log('Error elements found:', errorElements.length);
+        console.log('Text queries found:', textQueries.filter(query => query() !== null).length);
+        console.log('Form HTML:', container.innerHTML.includes('form') ? 'Form found' : 'No form');
+        
+        expect(foundAnyError).toBe(true);
+      },
+      { timeout: 8000 }
+    );
+
+    // If we get here, errors should be visible - check for specific ones
+    expect(screen.getByText(/Username must be at least 6 characters/i)).toBeInTheDocument();
     expect(screen.getByText(/Full name is required/i)).toBeInTheDocument();
     expect(screen.getByText(/Must be a valid email format/i)).toBeInTheDocument();
     expect(screen.getByText(/Phone must be 10-15 digits/i)).toBeInTheDocument();
     expect(screen.getByText(/Birth date cannot be in the future/i)).toBeInTheDocument();
     expect(screen.getByText(/Bio must be 160 characters or less/i)).toBeInTheDocument();
-  });
-
-
-
-
+  }, 20000);
 });

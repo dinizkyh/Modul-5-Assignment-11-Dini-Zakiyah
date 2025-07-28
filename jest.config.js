@@ -24,7 +24,7 @@ const customJestConfig = {
     }
   },
   // Improve CI performance
-  maxWorkers: process.env.CI ? 2 : "50%",
+  maxWorkers: process.env.CI ? 2 : "90%",
   // Don't fail fast in CI to get full test results
   bail: 0,
   // Verbose output in CI for debugging
