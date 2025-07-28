@@ -53,9 +53,7 @@ describe("ProfilePage", () => {
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "user@example.com" } });
     fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
-    // Debug output to help identify the actual error message
-    // eslint-disable-next-line no-console
-    console.log(document.body.innerHTML);
+    // Debug output removed for cleaner test logs
     // Accept either possible error message
     const usernameError = await screen.findByText((text) =>
       text.includes("Username must be at least 6 characters.") || text.toLowerCase().includes("username is required")
@@ -168,15 +166,8 @@ describe("ProfilePage", () => {
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "invalid-email" } });
     fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
-    // Log the DOM for debugging
-    // eslint-disable-next-line no-console
-    screen.debug();
-    // Use a flexible matcher for the error message
-    expect(
-      await screen.findByText((text) =>
-        text.toLowerCase().includes("valid email") || text.toLowerCase().includes("email format")
-      )
-    ).toBeInTheDocument();
+    // Use the exact error message for maximum reliability
+    expect(await screen.findByText("Must be a valid email format.")).toBeInTheDocument();
   });
 
   it("shows error if phone contains non-numeric characters", async () => {
@@ -433,11 +424,9 @@ describe("ProfilePage", () => {
     // Debug output removed for cleaner test logs
 
     // Only assert errors that are actually rendered based on validation logic and input
-    // Username is too short, so only username error should be shown (validation stops at first error)
-    expect(screen.getByText((text) => text.includes("Username must be at least 6 characters"))).toBeInTheDocument();
-    // If you want to test all errors, you need to make username valid and trigger other errors one by one in separate tests
-    expect(screen.getByText((text) => text.includes("Bio must be 160 characters or less"))).toBeInTheDocument();
-    // Optionally, check username error if it appears
-    expect(screen.queryByText((text) => text.includes("Username must be at least 6 characters"))).not.toBeNull();
+    // Username is too short, so username error should be shown
+    expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
+    // Bio error should also be shown
+    expect(await screen.findByText("Bio must be 160 characters or less.")).toBeInTheDocument();
   });
 });
