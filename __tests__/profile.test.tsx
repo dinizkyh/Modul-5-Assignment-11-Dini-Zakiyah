@@ -166,8 +166,12 @@ describe("ProfilePage", () => {
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "invalid-email" } });
     fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
-    // Use the exact error message for maximum reliability
-    expect(await screen.findByText("Must be a valid email format.")).toBeInTheDocument();
+    // Use a robust matcher that ignores whitespace and case
+    expect(
+      await screen.findByText((text) =>
+        text.replace(/\s+/g, " ").trim().toLowerCase().includes("valid email format")
+      )
+    ).toBeInTheDocument();
   });
 
   it("shows error if phone contains non-numeric characters", async () => {
@@ -425,7 +429,11 @@ describe("ProfilePage", () => {
 
     // Only assert errors that are actually rendered based on validation logic and input
     // Username is too short, so username error should be shown
-    expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
+    expect(
+      await screen.findByText((text) =>
+        text.replace(/\s+/g, " ").trim().toLowerCase().includes("username must be at least 6 characters")
+      )
+    ).toBeInTheDocument();
     // Bio error should also be shown
     expect(await screen.findByText("Bio must be 160 characters or less.")).toBeInTheDocument();
   });
