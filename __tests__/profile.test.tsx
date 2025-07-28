@@ -47,7 +47,11 @@ describe("ProfilePage", () => {
 
   it("shows error if username is only spaces", async () => {
     render(<ProfilePage />);
+    // Make all other fields valid, only username invalid
     fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "      " } });
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: "Valid Name" } });
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "user@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
     expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
   });
@@ -151,8 +155,11 @@ describe("ProfilePage", () => {
 
   it("shows error if email has leading/trailing spaces", async () => {
     render(<ProfilePage />);
-    // Use an invalid email to ensure the error message is rendered
+    // Make all other fields valid, only email invalid
+    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "validuser" } });
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: "Valid Name" } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "invalid-email" } });
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
     expect(
       await screen.findByText((text) => text.includes("valid email format"))
@@ -414,7 +421,7 @@ describe("ProfilePage", () => {
     console.log(container.innerHTML);
 
     // Only assert errors that are actually rendered based on validation order
-    expect(screen.getByText((text) => text.includes("Full name is required"))).toBeInTheDocument();
+    expect(screen.queryByText((text) => text.includes("Full name is required"))).not.toBeNull();
     expect(screen.getByText((text) => text.includes("valid email format"))).toBeInTheDocument();
     expect(screen.getByText((text) => text.includes("Phone must be 10-15 digits"))).toBeInTheDocument();
     expect(screen.getByText((text) => text.includes("Birth date cannot be in the future"))).toBeInTheDocument();
