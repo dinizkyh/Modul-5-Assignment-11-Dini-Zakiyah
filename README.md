@@ -1,7 +1,9 @@
+
 # Update-Profile: A Fullstack Next.js Project
 
 [![Tests](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/tests.yml/badge.svg)](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/tests.yml)
 [![CI/CD Pipeline](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/ci.yml/badge.svg)](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/branch/main/graph/badge.svg)](https://codecov.io/gh/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah)
 
 ## Project Description
 

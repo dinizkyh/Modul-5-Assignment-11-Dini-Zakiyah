@@ -49,10 +49,11 @@ All workflows enforce minimum coverage thresholds:
 The README includes status badges showing:
 - [![Tests](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/tests.yml/badge.svg)](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/tests.yml) - Current test status
 - [![CI/CD Pipeline](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/ci.yml/badge.svg)](https://github.com/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/actions/workflows/ci.yml) - Full pipeline status
+[![codecov](https://codecov.io/gh/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah/branch/main/graph/badge.svg)](https://codecov.io/gh/dinizkyh/Modul-5-Assignment-11-Dini-Zakiyah) - CodeCov report
 
 ## How It Works
 
-1. **On every push** to any branch → `tests.yml` runs basic tests
+1. **On every push** to any branch → `run_test.yml` runs basic tests
 2. **On pull requests** → All workflows run for comprehensive validation
 3. **Coverage reports** are automatically commented on PRs
 4. **Security checks** run to identify vulnerabilities
