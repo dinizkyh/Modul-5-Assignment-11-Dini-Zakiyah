@@ -22,6 +22,160 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe("ProfilePage", () => {
+  it("shows error if phone is only whitespace", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "     " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Phone must be 10-15 digits.")).toBeInTheDocument();
+  });
+
+  it("shows error if phone has leading/trailing spaces", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: " 1234567890 " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Phone must be 10-15 digits.")).toBeInTheDocument();
+  });
+
+  it("accepts email with uppercase letters", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "USER@EXAMPLE.COM" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Must be a valid email format.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows error if username is only spaces", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "      " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
+  });
+
+  it("accepts bio with only whitespace (0 chars)", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Bio/i), { target: { value: "    " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Bio must be 160 characters or less.")).not.toBeInTheDocument();
+    });
+  });
+  it("accepts phone number with exactly 10 digits", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "1234567890" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Phone must be 10-15 digits.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts phone number with exactly 15 digits", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "123456789012345" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Phone must be 10-15 digits.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts valid email with subdomain", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "user@mail.example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Must be a valid email format.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts username with exactly 6 characters", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "abcdef" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Username must be at least 6 characters.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts empty bio (0 chars)", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Bio/i), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Bio must be 160 characters or less.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts bio with exactly 160 characters", async () => {
+    render(<ProfilePage />);
+    const validBio = "a".repeat(160);
+    fireEvent.change(screen.getByLabelText(/Bio/i), { target: { value: validBio } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Bio must be 160 characters or less.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("does not show error if birth date is empty", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Birth Date/i), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Birth date cannot be in the future.")).not.toBeInTheDocument();
+    });
+  });
+
+  it("accepts all fields at edge valid values", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "abcdef" } });
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: "Edge User" } });
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "user@mail.example.com" } });
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "123456789012345" } });
+    fireEvent.change(screen.getByLabelText(/Birth Date/i), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText(/Bio/i), { target: { value: "a".repeat(160) } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Username must be at least 6 characters.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Full name is required.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Must be a valid email format.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Phone must be 10-15 digits.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Birth date cannot be in the future.")).not.toBeInTheDocument();
+      expect(screen.queryByText("Bio must be 160 characters or less.")).not.toBeInTheDocument();
+    });
+  });
+  it("shows error if full name is only whitespace", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: "   " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Full name is required.")).toBeInTheDocument();
+  });
+
+  it("shows error if email has leading/trailing spaces", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: " test@example.com " } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Must be a valid email format.")).toBeInTheDocument();
+  });
+
+  it("shows error if phone contains non-numeric characters", async () => {
+    render(<ProfilePage />);
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "123-456-7890" } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(await screen.findByText("Phone must be 10-15 digits.")).toBeInTheDocument();
+  });
+
+  it("does not show error if birth date is exactly today", async () => {
+    render(<ProfilePage />);
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    fireEvent.change(screen.getByLabelText(/Birth Date/i), { target: { value: todayStr } });
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    await waitFor(() => {
+      expect(screen.queryByText("Birth date cannot be in the future.")).not.toBeInTheDocument();
+    });
+  });
   beforeEach(() => {
     (fetch as jest.Mock).mockClear();
   });
@@ -242,71 +396,25 @@ describe("ProfilePage", () => {
 
   it("shows all validation errors at once", async () => {
     const { container } = render(<ProfilePage />);
-    
-    // Set invalid values for all fields
-    fireEvent.change(screen.getByLabelText(/Username/i), {
-      target: { value: "short" },
-    });
-    fireEvent.change(screen.getByLabelText(/Full Name/i), {
-      target: { value: "" },
-    });
-    fireEvent.change(screen.getByLabelText(/Email/i), {
-      target: { value: "invalid-email" },
-    });
-    fireEvent.change(screen.getByLabelText(/Phone/i), {
-      target: { value: "123" },
-    });
+    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "short" } });
+    fireEvent.change(screen.getByLabelText(/Full Name/i), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: "invalid-email" } });
+    fireEvent.change(screen.getByLabelText(/Phone/i), { target: { value: "123" } });
     const futureDate = new Date();
     futureDate.setFullYear(futureDate.getFullYear() + 1);
-    fireEvent.change(screen.getByLabelText(/Birth Date/i), {
-      target: { value: futureDate.toISOString().split("T")[0] },
-    });
-    fireEvent.change(screen.getByLabelText(/Bio/i), {
-      target: { value: "a".repeat(161) },
-    });
-    
-    // Click submit to trigger validation
-    const submitButton = screen.getByRole("button", { name: /Update/i });
-    fireEvent.click(submitButton);
+    fireEvent.change(screen.getByLabelText(/Birth Date/i), { target: { value: futureDate.toISOString().split("T")[0] } });
+    fireEvent.change(screen.getByLabelText(/Bio/i), { target: { value: "a".repeat(161) } });
 
-    // Wait and check if ANY error appears - using more flexible approach
-    let foundAnyError = false;
-    await waitFor(
-      async () => {
-        // Wait a bit for React to process the form submission
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Check for error elements by class
-        const errorElements = container.querySelectorAll('.text-red-600');
-        
-        // Also check by direct text search
-        const textQueries = [
-          () => screen.queryByText(/Username must be at least 6 characters/i),
-          () => screen.queryByText(/Full name is required/i),
-          () => screen.queryByText(/Must be a valid email format/i),
-          () => screen.queryByText(/Phone must be 10-15 digits/i),
-          () => screen.queryByText(/Birth date cannot be in the future/i),
-          () => screen.queryByText(/Bio must be 160 characters or less/i),
-        ];
-        
-        foundAnyError = errorElements.length > 0 || textQueries.some(query => query() !== null);
-        
-        console.log('Debug info:');
-        console.log('Error elements found:', errorElements.length);
-        console.log('Text queries found:', textQueries.filter(query => query() !== null).length);
-        console.log('Form HTML:', container.innerHTML.includes('form') ? 'Form found' : 'No form');
-        
-        expect(foundAnyError).toBe(true);
-      },
-      { timeout: 8000 }
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
 
-    // If we get here, errors should be visible - check for specific ones
-    expect(screen.getByText(/Username must be at least 6 characters/i)).toBeInTheDocument();
-    expect(screen.getByText(/Full name is required/i)).toBeInTheDocument();
-    expect(screen.getByText(/Must be a valid email format/i)).toBeInTheDocument();
-    expect(screen.getByText(/Phone must be 10-15 digits/i)).toBeInTheDocument();
-    expect(screen.getByText(/Birth date cannot be in the future/i)).toBeInTheDocument();
-    expect(screen.getByText(/Bio must be 160 characters or less/i)).toBeInTheDocument();
-  }, 20000);
+    // eslint-disable-next-line no-console
+    console.log(container.innerHTML);
+
+    expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
+    expect(screen.getByText("Full name is required.")).toBeInTheDocument();
+    expect(screen.getByText("Must be a valid email format.")).toBeInTheDocument();
+    expect(screen.getByText("Phone must be 10-15 digits.")).toBeInTheDocument();
+    expect(screen.getByText("Birth date cannot be in the future.")).toBeInTheDocument();
+    expect(screen.getByText("Bio must be 160 characters or less.")).toBeInTheDocument();
+  });
 });
