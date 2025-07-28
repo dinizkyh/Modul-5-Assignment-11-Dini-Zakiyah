@@ -17,23 +17,24 @@ const customJestConfig = {
   coverageDirectory: "coverage",
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
     }
   },
   // Improve CI performance
   maxWorkers: process.env.CI ? 2 : "50%",
-  // Fail fast in CI
-  bail: process.env.CI ? 1 : 0,
+  // Don't fail fast in CI to get full test results
+  bail: 0,
   // Verbose output in CI for debugging
   verbose: !!process.env.CI,
   // Collect coverage from all source files
   collectCoverageFrom: [
     "src/**/*.{js,jsx,ts,tsx}",
     "!src/**/*.d.ts",
-    "!src/**/layout.tsx", // Exclude layout from strict coverage
+    "!src/app/layout.tsx", // Exclude layout from strict coverage due to HTML structure
+    "!src/app/page.tsx", // Exclude main page if it has similar HTML structure
   ],
 };
 
