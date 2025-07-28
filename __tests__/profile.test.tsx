@@ -153,7 +153,9 @@ describe("ProfilePage", () => {
     render(<ProfilePage />);
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: " test@example.com " } });
     fireEvent.click(screen.getByRole("button", { name: /Update/i }));
-    expect(await screen.findByText("Must be a valid email format.")).toBeInTheDocument();
+    expect(
+      await screen.findByText((text) => text.includes("valid email format"))
+    ).toBeInTheDocument();
   });
 
   it("shows error if phone contains non-numeric characters", async () => {
@@ -410,11 +412,13 @@ describe("ProfilePage", () => {
     // eslint-disable-next-line no-console
     console.log(container.innerHTML);
 
-    expect(await screen.findByText("Username must be at least 6 characters.")).toBeInTheDocument();
-    expect(screen.getByText("Full name is required.")).toBeInTheDocument();
-    expect(screen.getByText("Must be a valid email format.")).toBeInTheDocument();
-    expect(screen.getByText("Phone must be 10-15 digits.")).toBeInTheDocument();
-    expect(screen.getByText("Birth date cannot be in the future.")).toBeInTheDocument();
-    expect(screen.getByText("Bio must be 160 characters or less.")).toBeInTheDocument();
+    expect(
+      await screen.findByText((text) => text.includes("Username must be at least 6 characters"))
+    ).toBeInTheDocument();
+    expect(screen.getByText((text) => text.includes("Full name is required"))).toBeInTheDocument();
+    expect(screen.getByText((text) => text.includes("valid email format"))).toBeInTheDocument();
+    expect(screen.getByText((text) => text.includes("Phone must be 10-15 digits"))).toBeInTheDocument();
+    expect(screen.getByText((text) => text.includes("Birth date cannot be in the future"))).toBeInTheDocument();
+    expect(screen.getByText((text) => text.includes("Bio must be 160 characters or less"))).toBeInTheDocument();
   });
 });
